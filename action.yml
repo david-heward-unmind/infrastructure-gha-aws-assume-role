@@ -1,0 +1,32 @@
+name: "Unmind Infrastructure Composite Action :: AWS Assume Role"
+description: "Assumes role in another account"
+inputs:
+  account-id:
+    description: "Account number"
+    required: true
+  role-name:
+    description: "Role name"
+    required: true
+  role-duration-seconds:
+    description: "Role duration seconds"
+    required: true
+    default: 900
+  role-session-name:
+    description: "Role session name"
+    required: true
+    default: "IamPermsGHASync"
+secrets:
+  AWS_REGION:
+    description: "The AWS Region"
+    required: true
+    default: "eu-west-1"
+runs:
+  using: "composite"
+  steps:  
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ secrets.AWS_REGION || 'eu-west-1' }}
+        role-to-assume: arn:aws:iam::${{inputs.account-id}}:role/${{inputs.role-name}}
+        role-duration-seconds: ${{ inputs.role-duration-seconds }}
+        role-session-name: ${{ inputs.role-session-name }}
